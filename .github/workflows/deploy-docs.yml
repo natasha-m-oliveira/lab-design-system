@@ -1,0 +1,30 @@
+name: Deploy Storybook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/chechout@v3 # baixa a versão atualizada do nosso código
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3 # instala o node no nosso ambiente
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm ci # é o mesmo que o npm i, mas pensando para ambiente de prod onde não podemos interagir no terminal e nem queremos instalar as devDependencies ou atualizar os pacotes do nosso projeto
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Deploy Storybook
+        run: npm run deploy-storybook -- --ci --existing-output-dir=storybook-static
+        env:
+          GH_TOKEN: ${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}
